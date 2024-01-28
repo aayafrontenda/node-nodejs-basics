@@ -1,22 +1,19 @@
-import fs from "fs";
+import { promises } from "fs";
 import path from "path";
 
 const create = async () => {
   try {
-    if (fs.existsSync(path.normalize("./files/fresh.txt"))) {
-      throw new Error("FS operation failed");
+    await promises.access(path.normalize("./files/fresh.txt"));
+    throw new Error("FS operation failed");
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      promises.appendFile(
+        path.normalize("./files/fresh.txt"),
+        "I am fresh and young"
+      );
+    } else {
+      console.error(err);
     }
-    fs.appendFile(
-      path.normalize("./files/fresh.txt"),
-      "I am fresh and young",
-      function (error) {
-        if (error) {
-          throw new Error("FS (write) operation failed");
-        }
-      }
-    );
-  } catch (error) {
-    console.error(error);
   }
 };
 
